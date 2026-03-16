@@ -4,27 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
 
   const handleSignOut = async () => {
     await authClient.signOut();
     router.push("/login");
   };
 
-  if (isPending) {
+  if (isPending || !session) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <span className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></span>
       </div>
     );
-  }
-
-  if (!session) {
-    router.push("/login");
-    return null;
   }
 
   return (
